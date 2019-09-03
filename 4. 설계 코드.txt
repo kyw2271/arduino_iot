@@ -1,0 +1,169 @@
+#include <ESP8266_Lib.h>		// wifi모듈 헤더파일 
+#include <BlynkSimpleShieldEsp8266.h>	// Blynk 헤더
+#include "FPS_GT511C3.h"		// 지문인식 센서 헤더
+#include "SoftwareSerial.h"		// 소프트웨어 시리얼
+
+//브레드 보드 연결
+#define sen_1 2 //진동 센서      
+#define pie 4   // 부저
+#define r_1 6 //릴레이 채널1      
+#define r_2 7 //릴레이 채널2
+
+// pc 케이스 직결
+volatile byte state = LOW;
+#define sw 3 // 전원감지 릴레이 (usb 5v)
+#define pcsw 48 // 전원 버튼
+#define rssw 49 // 호출 버튼(리셋)
+
+// 지문인식
+FPS_GT511C3 fps(10, 11);
+
+//블링크 사용 핀번호
+#define oncom_sw 12
+#define offsen_sw 13
+#define BLYNK_PRINT Serial
+//블링크 설정
+char auth[] = "3c7d6e9ec8e3488da5f5211b0bb2dca9";
+char ssid[] = "abcdefg";		// 공유기 wifi 연결
+char pass[] = "12345678";
+#define EspSerial Serial1
+#define ESP8266_BAUD 9600
+ESP8266 wifi(&EspSerial);
+WidgetTerminal terminal(V1);
+
+void setup()
+{
+	Serial.begin(9600);
+	EspSerial.begin(ESP8266_BAUD);
+	delay(10);
+
+	Blynk.begin(auth, wifi, ssid, pass);
+	delay(10);
+	fps.Open();         
+
+	pinMode(sen_1, INPUT);
+	pinMode(pie, OUTPUT);
+	pinMode(r_1, OUTPUT); //릴레이1채널 핀 출력포트 설정      
+	pinMode(r_2, OUTPUT); //릴레이2채널 핀 출력포트 설정 
+	pinMode(oncom_sw, INPUT);
+	pinMode(offsen_sw, INPUT);
+	pinMode(pcsw, INPUT_PULLUP);
+	pinMode(rssw, INPUT_PULLUP);
+
+	pinMode(sw, INPUT_PULLUP);	
+	// 인터럽트 설정 - 전원 인가가 인식 되면 인터럽트 
+	attachInterrupt(1, STA, FALLING);
+
+}
+
+int count = 0;
+int id_sate = 0; // 1 = 인가, 2= 비인가(틀림), 0 = 비인가(유휴)  11 = 인가된 알림, 10 = 비인가 알림
+
+
+void loop()
+{
+	Blynk.run();
+
+	if (digitalRead(offsen_sw) == HIGH) {	// 진동 감지 센서 on/off
+		long ment = TP_init();
+		Serial.println(ment);
+
+		if (ment > 1000) { 
+			tone(pie, 500, 1000);
+			Blynk.notify("경고 : 컴퓨터에 접근이 있습니다.  !!");
+		}
+	}
+	else if (digitalRead(offsen_sw) == LOW) { Serial.println("off"); }
+
+
+
+	if (digitalRead(oncom_sw) == HIGH) {	//  외부 제어 
+		id_sate = 1;
+		digitalWrite(r_1, HIGH);
+	}
+	else {
+		digitalWrite(r_1, LOW);
+	}
+
+
+	if (digitalRead(rssw) == LOW) {			// 호출 버튼
+		Blynk.notify("컴퓨터를 사용하고 싶습니다.");
+		Serial.println("send mesi"); 
+	}
+
+
+	if (digitalRead(pcsw) == LOW) {		// 지문 판독
+		fps.SetLED(true);
+
+		if (fps.IsPressFinger()) {
+
+			fps.CaptureFinger(false);
+			int id = fps.Identify1_N();
+
+			if (id < 200) {
+				Serial.print("Verified ID:");
+				Serial.println(id);
+				count = 0; id_sate = 1;
+				fps.SetLED(false);
+				//전원인가
+				digitalWrite(r_1, HIGH);
+				delay(500);
+				digitalWrite(r_1, LOW);
+			}
+
+			else {//if unable to recognize
+				Serial.println("Finger not found");
+				tone(pie, 1000, 25);
+				count++; id_sate = 2;
+				fps.SetLED(false);
+			}
+
+		}
+		else {
+			Serial.println("Please press finger");
+			tone(pie, 1000, 25);
+			count++; id_sate = 2;
+			fps.SetLED(false);
+		}
+	}
+
+
+	if (count > 4) {
+		tone(pie, 500, 5000);
+		Blynk.notify("경고 : 지문인식이 5회 이상 틀렸습니다.");
+		count = 0;
+	}
+
+	if (id_sate == 10) {
+		Serial.println("not corect");
+		Blynk.notify("경고 : 비인가된 방법으로 컴퓨터가 켜졌습니다.");
+		id_sate = 0;
+	}
+	else if (id_sate == 11) {
+		Serial.println("corect");
+		Blynk.notify("인가된 방법으로 컴퓨터가 켜졌습니다.");
+		id_sate = 0;
+	}
+
+
+
+}
+
+
+//===============================================================================================
+long TP_init() {
+	delay(10);
+	long measurement = pulseIn(sen_1, HIGH);
+	return measurement;
+}
+
+void STA() {
+
+
+	if (id_sate == 2 || id_sate == 0)id_sate = 10;
+
+	else if (id_sate == 1)id_sate = 11;
+
+	state = !state;
+
+}	

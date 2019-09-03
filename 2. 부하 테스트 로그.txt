@@ -1,0 +1,216 @@
+0
+0
+0
+[9] 
+    ___  __          __
+   / _ )/ /_ _____  / /__
+  / _  / / // / _ \/  '_/
+ /____/_/\_, /_//_/_/\_\
+        /___/ v0.6.1 on Arduino Mega ADK
+
+[603] Connecting to abcdefg
+[3681] 0018000902
+[4694] Failed to enable MUX
+[9819] 192.168.0.18
+[9820] Connected to WiFi
+[10867] Ready (ping: 58ms).
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+1156
+0
+21823
+send mesi
+118
+send mesi
+Please press finger
+171
+Verified ID:0
+corect
+22033
+Finger not found
+19549
+0
+0
+528
+6109
+Please press finger
+20199
+Please press finger
+1300
+6647
+Please press finger
+0
+Please press finger
+1605
+send mesi
+21071
+0
+6831
+857
+0
+0
+1394
+20466
+Finger not found
+20146
+Please press finger
+576
+6737
+1341
+send mesi
+23738
+1401
+0
+147
+34060
+Please press finger
+0
+7957
+491
+21812
+0
+0
+416
+9036
+59011
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+off
+0
+84046
+81983
+1168
+22900
+1001
+11361
+Verified ID:0
+corect
+565
+5715
+1043
+22657
+156
+7896
+1768
+Finger not found
+1366
+Please press finger
+0
+Please press finger
+0
+Please press finger
+0
+0
+8932
+136687
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+Verified ID:0
+corect
+0
+0
+0
+Finger not found
+0
+Please press finger
+0
+Verified ID:0
+0
+0
+0
+0
